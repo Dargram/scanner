@@ -1,0 +1,4 @@
+source .env/bin/activate
+export PYTHONDONTWRITEBYTECODE=1
+
+python3 main.py --host 192.168.0.26
