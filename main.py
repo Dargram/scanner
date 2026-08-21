@@ -3,6 +3,7 @@ import socket
 import argparse
 
 POPULAR_PORTS = {21, 22, 23, 25, 53, 80, 443, 1433, 2000, 3000, 3306, 4444, 5000, 5432, 5555, 8080}
+
 # parser for arguments (host and port)
 def args_parser() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
@@ -14,15 +15,15 @@ def args_parser() -> argparse.Namespace:
 # main function for scanning ports
 def scan_port(host:str, port:int):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        sock.settimeout(1.0)
+        sock.settimeout(0.1)
 
         # connect_ex returns 0 (int), if connection is correct
         result = sock.connect_ex((host, port))
         if result == 0:
-            print(f"[+] Port is open [{port}]")
+            print(f"\033[92m[+]\033[0m Port is open [{port}]")
 
         else:
-            print(f"[-] Port is close [{port}]")
+            print(f"\033[91m[-]\033[0m Port is closen [{port}]")
 
 if __name__ == "__main__":
     args = args_parser()
