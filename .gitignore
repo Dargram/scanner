@@ -1,7 +1,12 @@
+# Python
 /__pycache__
 __pycache__
 
+test.py
+# Environment
 .env
 
-test
+# Bash-scripts
+ports.sh
+range.sh
 

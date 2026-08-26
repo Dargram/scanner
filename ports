@@ -1,4 +1,0 @@
-source .env/bin/activate
-export PYTHONDONTWRITEBYTECODE=1
-
-python3 main.py --host kep.nung.edu.ua

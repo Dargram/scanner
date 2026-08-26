@@ -2,16 +2,21 @@
 import socket
 import ipaddress
 import argparse
+from scapy.all import IP, ICMP, sr1
 
 POPULAR_PORTS = [80, 443, 4444, 21, 22, 23, 25, 53, 1433, 2000, 3000, 3306, 5000, 5432, 5555, 8080]
-DEVICES_IN_SUBNET = []
+DEVICES_IN_NETWORK = []
 
 # main function that starts everything
 def main():
     args = args_parser()
 
-    if args.range:
-        scan_network(args.range, args.status)
+    if args.icmp and args.host:
+        icmp_request(args.host)
+
+    elif args.icmp and args.range:
+        scan_network(args.range)
+        print(DEVICES_IN_NETWORK)
 
     elif args.port and args.host:
         scan_ports(args.host, args.port)
@@ -22,46 +27,38 @@ def main():
 # parser for arguments (host and port)
 def args_parser() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument("-r", "--range", type=str, required=False)
-    parser.add_argument("-s", "--status", type=str, required=False)
-    parser.add_argument("-i", "--host", type=str, required=False)
-    parser.add_argument("-p", "--port", type=int, required=False)
+
+    parser.add_argument("-t", "--host", type=str, required=False, help="Enter hostname")
+    parser.add_argument("-p", "--port", type=int, required=False, help="Enter port ")
+    parser.add_argument("-i", "--icmp", action="store_true", required=False, help="Use ICMP ping")
 
     args = parser.parse_args()
     return args
 
 # function for scanning ports
 def scan_ports(host:str, port:int) -> None:
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        sock.settimeout(0.5)
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as tcp_socket:
+        tcp_socket.settimeout(0.5)
 
         # connect_ex returns 0 (int), if connection is correct
-        result = sock.connect_ex((host, port))
+        result = tcp_socket.connect_ex((host, port))
         if result == 0:
             print(f"\033[92m[+]\033[0m Port is open [{port}]")
 
         else:
             print(f"\033[91m[-]\033[0m Port is closen [{port}]")
 
-# function for scanning devices in subnetwork
-def scan_network(network_range: str, status: str) -> None:
-    network = ipaddress.ip_network(network_range, strict=False) # network object
+# function for sending ICMP-requests
+def icmp_request(host: str) -> None:
+    packet = IP(dst=host) / ICMP()
+    response = sr1(packet, timeout=1, verbose=False)
 
-    for ip in network.hosts():
-        current_ip = str(ip)
+    if response is not None and response.haslayer(ICMP):
+        if response.getlayer(ICMP).type == 0:
+            print(f"\033[92m[+]\033[0m ICMP -> {host}")
+            return
 
-        for port in POPULAR_PORTS:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-                sock.settimeout(0.1)
-
-                result = sock.connect_ex((current_ip, port))
-                if status == 'hard':
-                    print(f"\033[93mTCP/IP -> {current_ip}:{port}\033[0m")
-
-                if result == 0:
-                    DEVICES_IN_SUBNET.append(current_ip)
-                    break
-    print(DEVICES_IN_SUBNET)
+    print(f"\033[91m[-]\033[0m ICMP -> {host}")
 
 if __name__ == "__main__":
     main()

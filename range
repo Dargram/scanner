@@ -1,4 +1,0 @@
-source .env/bin/activate
-export PYTHONDONTWRITEBYTECODE=1
-
-python3 main.py --range 192.168.0.1/24 
