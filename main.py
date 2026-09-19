@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import socket
-import ipaddress
 import argparse
 from scapy.all import IP, ICMP, Ether, sniff, sr1
 
@@ -17,10 +16,6 @@ def main():
 
     elif args.sniff:
         sniff(prn=packet_handler, store=0)
-
-    elif args.icmp and args.range:
-        scan_network(args.range)
-        print(DEVICES_IN_NETWORK)
 
     elif args.port and args.host:
         scan_ports(args.host, args.port)
