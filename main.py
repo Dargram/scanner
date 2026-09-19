@@ -75,7 +75,7 @@ def packet_handler(packet):
 
             if device_info not in SEEN_DEVICES:
                 SEEN_DEVICES.add(device_info)
-                print(f"[LOCAL] Знайдено пристрій -> {device_info}")
+                print(f"[LOCAL] Device found -> {device_info}")
 
 
 if __name__ == "__main__":
